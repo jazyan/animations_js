@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<style>
+#myContainer {
+  top: 50%;
+  left: 51%;
+  margin-right: 50%;
+  transform: translate(-50%, -50%);
+  position: relative;
+  background: yellow;
+}
+#myAnimation {
+  width: 10px;
+  height: 10px;
+  position: absolute;
+  background-color: red;
+  border-radius: 50%;
+}
+</style>
+<body>
+
+<div id ="myContainer">
+<div id ="myAnimation"></div>
+</div>
+
+<script>
+function getRandomNumRange(min, max) {
+    return Math.floor(Math.random() * (max - min)) + min;
+}
+
+function getRandomColor() {
+    return 'rgb(' + getRandomNumRange(0, 255) + ','
+                  + getRandomNumRange(0, 255) + ','
+                  + getRandomNumRange(0, 255) + ')';
+}
+
+function myMove() {
+  var elem = document.getElementById("myAnimation");   
+  var x = getRandomNumRange(1, 299);
+  var y = getRandomNumRange(1, 299);
+  var id = setInterval(frame, 10);
+  var x_inc = 2; 
+  var y_inc = 1;
+  function frame() {
+    if (y <= 0 || y > 300) {
+        y_inc *= -1;
+        elem.style.backgroundColor = getRandomColor();
+    } else if (x <= 0 || x > 300) {
+        x_inc *= -1;
+        elem.style.backgroundColor = getRandomColor();
+    }
+    x += x_inc;
+    y += y_inc;
+    elem.style.top = y + 'px'; 
+    elem.style.left = x + 'px';
+    console.log(x, y);
+  }
+}
+
+myMove();
+</script>
+
+</body>
+</html>
