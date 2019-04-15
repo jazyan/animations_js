@@ -33,6 +33,7 @@ var data = initRandomBinaryArr(ROWS, COLUMNS);
 
 // return an array with the new state according the game rules
 // the rules apply simultaneously to all cells
+// also, update the canvas with new state
 function update(arr, rows, columns) {
     var returnArr = new Array(rows);
     for (var i = 0; i < rows; i++) {
@@ -41,7 +42,7 @@ function update(arr, rows, columns) {
     for (var i = 0; i < rows; i++) {
         for (var j = 0; j < columns; j++) {
             var cell = arr[i][j];
-            var neighbors = checkNeighbors(arr, i, j);
+            var neighbors = checkAliveNeighbors(arr, i, j);
             if (cell == 1) { // cell is alive
                 if (neighbors < 2) {
                     returnArr[i][j] = 0; // underpopulation
@@ -57,13 +58,20 @@ function update(arr, rows, columns) {
                     returnArr[i][j] = 0;
                 }
             }
+            // update the canvas
+            if (returnArr[i][j] == 0) {
+                ctx.fillStyle = 'rgb(0, 0, 0)';
+            } else {
+                ctx.fillStyle = 'rgb(255, 255, 255)'
+            }
+            ctx.fillRect(j * 25, i * 25, 25, 25);
         }
     }
     return returnArr;
 }
 
 // helper function to return neighbors: N, S, E, W, and diagonals
-function checkNeighbors(arr, x, y) {
+function checkAliveNeighbors(arr, x, y) {
     var neighbors = [
         [1, 0], [-1, 0], [0, 1], [0, -1], 
         [1, 1], [-1, -1], [1, -1], [-1, 1]
@@ -84,20 +92,11 @@ function checkNeighbors(arr, x, y) {
 // update, then draw the new state of the binary array on the canvas
 function draw() {
     data = update(data, ROWS, COLUMNS);    
-    for (var i = 0; i < ROWS; i++) {
-        for (var j = 0; j < COLUMNS; j++) {
-            if (data[i][j] == 0) {
-                ctx.fillStyle = 'rgb(0, 0, 0)';
-            } else {
-                ctx.fillStyle = 'rgb(255, 255, 255)'
-            }
-            ctx.fillRect(j * 25, i * 25, 25, 25);
-        }
-    }
 }
 
 function animate() {
     setInterval(draw, 1000);
 }
+
 animate();
 </script>
