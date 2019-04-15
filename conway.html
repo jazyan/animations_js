@@ -7,8 +7,9 @@
 <script>
 var WIDTH = 500;
 var HEIGHT = 500;
-var ROWS = WIDTH / 25;
-var COLUMNS = HEIGHT / 25;
+var BLOCK_SIZE = 25;
+var ROWS = WIDTH / BLOCK_SIZE;
+var COLUMNS = HEIGHT / BLOCK_SIZE;
 
 // init canvas
 var canvas = document.createElement("canvas");
@@ -41,33 +42,38 @@ function update(arr, rows, columns) {
     }
     for (var i = 0; i < rows; i++) {
         for (var j = 0; j < columns; j++) {
-            var cell = arr[i][j];
-            var neighbors = checkAliveNeighbors(arr, i, j);
-            if (cell == 1) { // cell is alive
-                if (neighbors < 2) {
-                    returnArr[i][j] = 0; // underpopulation
-                } else if (neighbors < 4) {
-                    returnArr[i][j] = 1; // nothing changes
-                } else { // >= 4 live neighbors
-                    returnArr[i][j] = 0; // overpopulation
-                }
-            } else { // cell is dead
-                if (neighbors == 3) {
-                    returnArr[i][j] = 1; // reproduction
-                } else {
-                    returnArr[i][j] = 0;
-                }
-            }
+            var cellState = arr[i][j];
+            var numAliveNeighbors = checkAliveNeighbors(arr, i, j);
+            returnArr[i][j] = conwayRules(cellState, numAliveNeighbors);
             // update the canvas
             if (returnArr[i][j] == 0) {
                 ctx.fillStyle = 'rgb(0, 0, 0)';
             } else {
                 ctx.fillStyle = 'rgb(255, 255, 255)'
             }
-            ctx.fillRect(j * 25, i * 25, 25, 25);
+            ctx.fillRect(i * BLOCK_SIZE, j * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
         }
     }
     return returnArr;
+}
+
+// returns the state of the cell, which depends on the cell's
+// current state, and the state of its neighbors
+function conwayRules(cellState, numAliveNeighbors) {
+    if (cellState == 1) { // cell is alive
+        if (numAliveNeighbors < 2) {
+            return 0; // underpopulation
+        } 
+        if (numAliveNeighbors < 4) {
+            return 1; // nothing changes
+        } 
+        return 0;  // >= 4 live neighbors, die from overpopulation
+    }
+    // cell is dead 
+    if (numAliveNeighbors == 3) {
+        return 1; // reproduction, be born again!
+    } 
+    return 0; // stay dead :(
 }
 
 // helper function to return neighbors: N, S, E, W, and diagonals
