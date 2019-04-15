@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+    <body></body>
+</head>
+
+<script>
+var WIDTH = 500;
+var HEIGHT = 500;
+var ROWS = WIDTH / 25;
+var COLUMNS = HEIGHT / 25;
+
+// init canvas
+var canvas = document.createElement("canvas");
+canvas.width = WIDTH;
+canvas.height = HEIGHT;
+canvas.setAttribute('style', "position: absolute; left: 50%; margin-left:-400px; top: 50%; margin-top:-400px;");
+var ctx = canvas.getContext("2d");
+document.body.appendChild(canvas);
+
+// function to initialize array of 0s and 1s
+// 1 is an alive cell, 0 is a dead cell
+function initRandomBinaryArr(rows, columns) {
+    var returnArr = new Array(rows);
+    for (var i = 0; i < rows; i++) {
+        returnArr[i] = Array(columns).fill().map(() => Math.round(Math.random()))
+    }
+    return returnArr;
+}
+
+// our binary data array that we will mutate at every tick
+var data = initRandomBinaryArr(ROWS, COLUMNS);
+
+// return an array with the new state according the game rules
+// the rules apply simultaneously to all cells
+function update(arr, rows, columns) {
+    var returnArr = new Array(rows);
+    for (var i = 0; i < rows; i++) {
+        returnArr[i] = Array(columns);
+    }
+    for (var i = 0; i < rows; i++) {
+        for (var j = 0; j < columns; j++) {
+            var cell = arr[i][j];
+            var neighbors = checkNeighbors(arr, i, j);
+            if (cell == 1) { // cell is alive
+                if (neighbors < 2) {
+                    returnArr[i][j] = 0; // underpopulation
+                } else if (neighbors < 4) {
+                    returnArr[i][j] = 1; // nothing changes
+                } else { // >= 4 live neighbors
+                    returnArr[i][j] = 0; // overpopulation
+                }
+            } else { // cell is dead
+                if (neighbors == 3) {
+                    returnArr[i][j] = 1; // reproduction
+                } else {
+                    returnArr[i][j] = 0;
+                }
+            }
+        }
+    }
+    return returnArr;
+}
+
+// helper function to return neighbors: N, S, E, W, and diagonals
+function checkNeighbors(arr, x, y) {
+    var neighbors = [
+        [1, 0], [-1, 0], [0, 1], [0, -1], 
+        [1, 1], [-1, -1], [1, -1], [-1, 1]
+    ]
+    var liveNeighbors = 0;
+    for (var i = 0; i < neighbors.length; i++) {
+        c_x = x + neighbors[i][0];
+        c_y = y + neighbors[i][1]
+        // check bounds
+        if (c_x < 0 || c_x >= ROWS || c_y < 0 || c_y >= COLUMNS) {
+            continue;
+        }
+        liveNeighbors += arr[c_x][c_y];
+    }
+    return liveNeighbors;
+}
+
+// update, then draw the new state of the binary array on the canvas
+function draw() {
+    data = update(data, ROWS, COLUMNS);    
+    for (var i = 0; i < ROWS; i++) {
+        for (var j = 0; j < COLUMNS; j++) {
+            if (data[i][j] == 0) {
+                ctx.fillStyle = 'rgb(0, 0, 0)';
+            } else {
+                ctx.fillStyle = 'rgb(255, 255, 255)'
+            }
+            ctx.fillRect(j * 25, i * 25, 25, 25);
+        }
+    }
+}
+
+function animate() {
+    setInterval(draw, 1000);
+}
+animate();
+</script>
