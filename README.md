@@ -1,0 +1,1 @@
+A collection of animations I'm making to help me learn Javascript/HTML/CSS
